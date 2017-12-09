@@ -38,6 +38,7 @@ import android.view.View;
  * Email    kingjavip@gmail.com
  */
 public class SwitchMultiButton extends View {
+    public static final int EMPTY_VALUE = -1;
 
     private static final String TAG = "SwitchMultiButton";
     /*default value*/
@@ -48,6 +49,7 @@ public class SwitchMultiButton extends View {
     private static final float TEXT_SIZE = 14;
     private static final int SELECTED_COLOR = 0xffeb7b00;
     private static final int SELECTED_TAB = 0;
+
     /*other*/
     private Paint mStrokePaint;
     private Paint mFillPaint;
@@ -61,6 +63,7 @@ public class SwitchMultiButton extends View {
     private int mSelectedColor;
     private float mTextSize;
     private int mSelectedTab;
+    private boolean mAllowEmpty;
     private float perWidth;
     private float mTextHeightOffset;
     private Paint.FontMetrics mFontMetrics;
@@ -92,7 +95,11 @@ public class SwitchMultiButton extends View {
         mStrokeWidth = typedArray.getDimension(R.styleable.SwitchMultiButton_strokeWidth, STROKE_WIDTH);
         mTextSize = typedArray.getDimension(R.styleable.SwitchMultiButton_textSize, TEXT_SIZE);
         mSelectedColor = typedArray.getColor(R.styleable.SwitchMultiButton_selectedColor, SELECTED_COLOR);
-        mSelectedTab = typedArray.getInteger(R.styleable.SwitchMultiButton_selectedTab, SELECTED_TAB);
+
+        mAllowEmpty = typedArray.getBoolean(R.styleable.SwitchMultiButton_allowEmpty, false);
+        mSelectedTab = typedArray.getInteger(R.styleable.SwitchMultiButton_selectedTab,
+                mAllowEmpty ? EMPTY_VALUE : SELECTED_TAB);
+
         int mSwitchTabsResId = typedArray.getResourceId(R.styleable.SwitchMultiButton_switchTabs, 0);
         if (mSwitchTabsResId != 0) {
             mTabTexts = getResources().getStringArray(mSwitchTabsResId);
@@ -300,6 +307,8 @@ public class SwitchMultiButton extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
+            int lastSelected = getSelectedTab();
+
             float x = event.getX();
             for (int i = 0; i < mTabNum; i++) {
                 if (x > perWidth * i && x < perWidth * (i + 1)) {
@@ -312,6 +321,12 @@ public class SwitchMultiButton extends View {
                     }
                 }
             }
+
+            // twice-touch set EMPTY_VALUE value if allowEmpty is true
+            if (mAllowEmpty && getSelectedTab() == lastSelected) {
+                setSelectedTab(EMPTY_VALUE);
+            }
+
             invalidate();
         }
         return true;
@@ -350,13 +365,17 @@ public class SwitchMultiButton extends View {
         this.mSelectedTab = mSelectedTab;
         invalidate();
         if (onSwitchListener != null) {
-            onSwitchListener.onSwitch(mSelectedTab, mTabTexts[mSelectedTab]);
+            onSwitchListener.onSwitch(mSelectedTab, getTabText(mSelectedTab));
         }
         return this;
     }
 
+    private String getTabText(int selectedTab) {
+        return mSelectedTab == EMPTY_VALUE ? "" : mTabTexts[selectedTab];
+    }
+
     public void clearSelection() {
-        this.mSelectedTab = -1;
+        this.mSelectedTab = EMPTY_VALUE;
         invalidate();
     }
 
@@ -387,6 +406,7 @@ public class SwitchMultiButton extends View {
         bundle.putFloat("TextSize", mTextSize);
         bundle.putInt("SelectedColor", mSelectedColor);
         bundle.putInt("SelectedTab", mSelectedTab);
+        bundle.putBoolean("AllowEmpty", mAllowEmpty);
         return bundle;
     }
 
@@ -399,6 +419,7 @@ public class SwitchMultiButton extends View {
             mTextSize = bundle.getFloat("TextSize");
             mSelectedColor = bundle.getInt("SelectedColor");
             mSelectedTab = bundle.getInt("SelectedTab");
+            mAllowEmpty = bundle.getBoolean("AllowEmpty");
             super.onRestoreInstanceState(bundle.getParcelable("View"));
         } else {
             super.onRestoreInstanceState(state);

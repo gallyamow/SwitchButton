@@ -5,6 +5,7 @@
         <attr name="strokeWidth" format="dimension" />
         <attr name="textSize" format="dimension" />
         <attr name="selectedTab" format="integer" />
+        <attr name="allowEmpty" format="boolean" />
         <attr name="selectedColor" format="color|reference" />
         <attr name="switchTabs" format="reference" />
     </declare-styleable>
