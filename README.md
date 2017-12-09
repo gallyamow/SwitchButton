@@ -56,6 +56,22 @@ SwitchMultiButton mSwitchMultiButton = (SwitchMultiButton) findViewById(R.id.swi
             }
         });
 ```
+
+## Support Data Binding Library
+Example 
+```
+<lib.kingja.switchbutton.SwitchMultiButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        app:strokeRadius="5dp"
+        app:strokeWidth="1dp"
+        app:selectedTab="@={item.tab}"
+        app:selectedColor="#eb7b00"
+        app:switchTabs="@array/switch_tabs"
+        app:textSize="14sp" />
+```
+
 ## Changelog
 **v1.1.3**
 - Call onSwitch() when setSelectedTab() is called.
