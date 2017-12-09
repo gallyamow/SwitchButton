@@ -307,12 +307,16 @@ public class SwitchMultiButton extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
-            int lastSelected = getSelectedTab();
-
             float x = event.getX();
             for (int i = 0; i < mTabNum; i++) {
                 if (x > perWidth * i && x < perWidth * (i + 1)) {
                     if (mSelectedTab == i) {
+                        // twice-touch set EMPTY_VALUE value if allowEmpty is true
+                        if (mAllowEmpty) {
+                            setSelectedTab(EMPTY_VALUE);
+                            invalidate();
+                        }
+
                         return true;
                     }
                     mSelectedTab = i;
@@ -320,11 +324,6 @@ public class SwitchMultiButton extends View {
                         onSwitchListener.onSwitch(i, mTabTexts[i]);
                     }
                 }
-            }
-
-            // twice-touch set EMPTY_VALUE value if allowEmpty is true
-            if (mAllowEmpty && getSelectedTab() == lastSelected) {
-                setSelectedTab(EMPTY_VALUE);
             }
 
             invalidate();
